@@ -73,6 +73,7 @@ add_action( 'init', 'jyp_tickets' );
 *
 */
 
+//change this to grab all form fields from the cf7 form
 $tickets_select_custom_list = array(
 	'your-name',
 	'your-email',
@@ -88,9 +89,13 @@ $tickets_select_custom_list = array(
 
 function save_posted_data( $posted_data ) {
 
-	//if the form title is Support Form, process the form
+	//get the last selected form
+	$cf7_form = get_option('cf7-form');
+
+	//if the form title matches, process the form
 	$wpcf7 = WPCF7_ContactForm::get_current();
-	if( $wpcf7->title == 'Support Form' ){
+
+	if( $wpcf7->title == $cf7_form ){
 
 	//arguemtns for insert post
 	$args = array(
@@ -265,6 +270,53 @@ function jyp_ticket_column_values( $column, $post_id ){
 add_action( 'manage_tickets_posts_custom_column', 'jyp_ticket_column_values', 10, 2 );
 
 /*
+* Extend Search to Custom Fields
+*
+*/
+
+function extend_admin_search( $query ) {
+ 
+	// Extend search for document post type
+	$post_type = 'tickets';
+	// Custom fields to search for
+	$custom_fields = array(
+        'your-name',
+        'building',
+        'unit',
+        'importance',
+        'department',
+        'assigned-to'
+    );
+ 
+    if( ! is_admin() )
+    	return;
+    
+  	if ( $query->query['post_type'] != $post_type )
+  		return;
+ 
+    $search_term = $query->query_vars['s'];
+ 
+    // Set to empty, otherwise it won't find anything
+    $query->query_vars['s'] = '';
+ 
+    if ( $search_term != '' ) {
+        $meta_query = array( 'relation' => 'OR' );
+ 
+        foreach( $custom_fields as $custom_field ) {
+            array_push( $meta_query, array(
+                'key' => $custom_field,
+                'value' => $search_term,
+                'compare' => 'LIKE'
+            ));
+        }
+ 
+        $query->set( 'meta_query', $meta_query );
+    };
+}
+ 
+add_action( 'pre_get_posts', 'extend_admin_search' );
+
+/*
 * Metabox 2
 *
 */
@@ -354,7 +406,7 @@ function jyp_tickets_settings_page(){
 	//yohan, work on validation and settings display page
 
 	// validation
-    $is_valid_nonce = wp_verify_nonce( 'settings_nonce' );
+    $is_valid_nonce = wp_verify_nonce( 'jyp_tickets_settings_nonce' );
 	$can_edit_tickets = current_user_can( 'edit_posts' );
 
     // kill script depending on save status
@@ -376,6 +428,9 @@ function jyp_tickets_settings_page(){
 
     //get existing option
 	$options = get_option( 'cf7-form' );
+
+	$wpcf7 = WPCF7_ContactForm::get_current();
+	//http://hookr.io/classes/wpcf7_contact_form/
 
 	//settings page
 	include 'admin/settings.php';
