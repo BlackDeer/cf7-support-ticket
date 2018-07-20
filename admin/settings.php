@@ -1,10 +1,6 @@
 <div class="wrap">
 	<h1>Tickets Settings</h1>
 	<form method="POST">
-	 <?php
-		//settings_fields( 'jyp_tickets_options' );
-		wp_nonce_field( 'settings_nonce' );
-    ?>
     <table class="form-table">
     	<tbody>
 			<tr>
@@ -43,8 +39,8 @@
 				                'order'     => 'ASC', 
 				            ) );
 
-				            foreach( $managers as $user ){ 
-				            	echo '<li>' . $user->display_name . '</li>';
+				            foreach( $managers as $manager ){ 
+				            	echo '<li>' . $manager->display_name . '</li>';
 							}
 						?>
 					</ul>
@@ -53,14 +49,8 @@
 		</tbody>
 	</table>
 	<p class="submit">
-		<input type="submit" class="button-primary" value=" <?php _e('Save Changes') ?>" />
+		<?php wp_nonce_field( 'jyp_tickets_settings_nonce' ); ?>
+		<input type="submit" class="button-primary" value="<?php _e('Save Changes'); ?>" />
 	</p>
 	</form>
-	<h2><?php var_dump( $options ); ?></h2>
-	<?php 
-		var_dump($forms);
-		// wpcf7_contactform['scanned_from_tags'][0]['type', 'name', 'options'[0]]
-	?>
-	<h2>Validation</h2>
-	<p><?php var_dump($is_valid_nonce); var_dump($can_edit_tickets); ?></p>
 </div>	

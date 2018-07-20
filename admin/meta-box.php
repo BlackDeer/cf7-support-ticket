@@ -1,17 +1,4 @@
 <div>
-    <label>List of Forms</label>
-    <ul>
-        <?php
-            $posts = get_posts( array(
-                'post_type'     => 'wpcf7_contact_form',
-                'numberposts'   => -1
-            ));
-            foreach ( $posts as $p ) {
-                echo '<li>' . $p->ID . ' ' . $p->post_title . '</li>';
-        } ?>
-    </ul>
-
-    <br>
 
     <label for="department">Department</label>
     <select name="department">
@@ -69,18 +56,18 @@
                 'order'     => 'ASC', 
             ) );
 
-            foreach( $managers as $user ) 
+            foreach( $managers as $manager ) 
             {
-                if($user == get_post_meta($object->ID, 'assigned_to', true))
+                if($manager == get_post_meta($object->ID, 'assigned_to', true))
                 {
                     ?>
-                        <option selected><?php echo $user->display_name; ?></option>
+                        <option selected><?php echo $manager->display_name; ?></option>
                     <?php    
                 }
                 else
                 {
                     ?>
-                        <option><?php echo $user->display_name; ?></option>
+                        <option><?php echo $manager->display_name; ?></option>
                     <?php
                 }
             }
@@ -101,5 +88,8 @@
 
     <br>
 
+    <label for="status">Resolved</label>
+    <input type="checkbox" name="status" id="status" 
+        <?php if( get_post_meta($object->ID, 'status', true) == 1 ){ echo 'checked'; } ?> />
 
 </div>

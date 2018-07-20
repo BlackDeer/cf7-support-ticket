@@ -103,7 +103,6 @@ function save_posted_data( $posted_data ) {
 		'post_status'	=> 'publish',
 		'post_title'	=> $posted_data['your-subject'],
 		'post_content'	=> $posted_data['your-message'],
-		'post_author'	=> $posted_data['your-name'],
 	);
 	//insert post
 	$post_id = wp_insert_post($args);
@@ -132,6 +131,9 @@ function save_posted_data( $posted_data ) {
 		}
 		if( isset( $posted_data[ 'unit' ]) ){	
 			update_post_meta( $post_id, 'unit' , $posted_data[ 'unit' ]);
+		}
+		if( isset( $posted_data[ 'assigned-to' ]) ){	//auto select ticket manager??
+			update_post_meta( $post_id, 'assigned-to' , $posted_data[ 'assigned-to' ]);
 		}
 		if( isset( $posted_data[ 'contact-preference' ]) ){	
 			update_post_meta( $post_id, 'contact-preference' , $posted_data[ 'contact-preference' ]);
@@ -223,12 +225,15 @@ add_action( 'admin_init', 'jyp_ticket_role_caps', 999 );
 
 //add admin columns
 function jyp_ticket_columns_list() {
+	$columns['your-name']		= __( 'Name' );	
 	$columns['importance']	= __( 'Importance' );
 	$columns['department']	= __( 'Department' );
 	$columns['building']	= __( 'Building Number' );
 	$columns['unit']		= __( 'Unit Number' );
-	$columns['assigned_to']	= __( 'Assigned To' );
+	$columns['assigned-to']	= __( 'Assigned To' );
 	$columns['id']			= __( 'ID#' );
+	$columns['status']		= __( 'Status' );
+
 	return $columns;
 }
 add_filter( 'manage_tickets_posts_columns', 'jyp_ticket_columns_list' );
@@ -239,12 +244,13 @@ function jyp_ticket_admin_columns() {
 		'cb'			=> $columns['cb'], //check box
 		'title'			=> __('Title'),
 		'date'			=> __( 'Date' ),
-		'author'		=> __( 'Author' ),
+		'status'		=> __( 'Status' ),
+		'your-name'		=> __( 'Name' ),
 		'building'		=> __( 'Building Number' ),
 		'unit'			=> __( 'Unit Number' ),
 		'importance'	=> __( 'Importance' ),
 		'department'	=> __( 'Department' ),
-		'assigned_to'	=> __( 'Assigned To' ),
+		'assigned-to'	=> __( 'Assigned To' ),
 		'id'			=> __( 'ID#' ),
 	);
 	return $columns;
@@ -254,14 +260,21 @@ add_filter( 'manage_tickets_posts_columns', 'jyp_ticket_admin_columns' );
 //populate column
 function jyp_ticket_column_values( $column, $post_id ){
 	switch( $column ){
+		case 'your-name':
 		case 'importance':
 		case 'department':
-		case 'assigned_to':
+		case 'assigned-to':
 		case 'building':
 		case 'unit':
 			echo get_post_meta( $post_id, $column, true );
 		break;
-
+		case 'status':
+			if ( get_post_meta( $post_id, $column, true) == 1 ){
+				echo 'Resolved';
+			} else {
+				echo 'Open';
+			}
+		break;
 		case 'id': 
 			echo get_the_ID();
 		break;
@@ -280,12 +293,14 @@ function extend_admin_search( $query ) {
 	$post_type = 'tickets';
 	// Custom fields to search for
 	$custom_fields = array(
+		'status',
         'your-name',
         'building',
         'unit',
         'importance',
         'department',
-        'assigned-to'
+        'assigned-to',
+        'id'
     );
  
     if( ! is_admin() )
@@ -344,23 +359,27 @@ function jyp_ticket_save_meta( $post_id ) {
     // Checks for input and sanitizes and saves if needed
 	if( !is_wp_error( $post_id ) ){
 		if ( isset ( $_POST[ 'importance' ] ) ) {
-			update_post_meta( $post_id, 'importance', $_POST[ 'importance' ] );
+			update_post_meta( $post_id, 'importance', wp_strip_all_tags( $_POST[ 'importance' ] ) );
 		}
 		if ( isset ( $_POST[ 'department' ] ) ) {
-			update_post_meta( $post_id, 'department', $_POST[ 'department' ] );
+			update_post_meta( $post_id, 'department', wp_strip_all_tags( $_POST[ 'department' ] ) );
 		}
 		if ( isset ( $_POST[ 'assigned-to' ] ) ) {
-			update_post_meta( $post_id, 'assigned-to', $_POST[ 'assigned-to' ] );
+			update_post_meta( $post_id, 'assigned-to', wp_strip_all_tags( $_POST[ 'assigned-to' ] ) );
 		}
-		if ( isset ( $_POST[ 'building' ] ) ) {
-			update_post_meta( $post_id, 'building', $_POST[ 'building' ] );
+		if ( isset ( $_POST[ 'building' ] ) && $_POST[ 'building' ] !== "" ) {
+			update_post_meta( $post_id, 'building', sanitize_text_field( $_POST[ 'building' ] ) );
 		}
 		if ( isset ( $_POST[ 'unit' ] )  && $_POST[ 'unit' ] !== "" ) {
-			update_post_meta( $post_id, 'unit', $_POST[ 'unit' ] );
+			update_post_meta( $post_id, 'unit', sanitize_text_field( $_POST[ 'unit' ] ) );
 		}
-		if ( isset ( $_POST[ 'contact-preference' ] ) && $_POST[ 'building' ] !== "" ) {
-			update_post_meta( $post_id, 'contact-preference', $_POST[ 'contact-preference' ] );
-
+		if ( isset ( $_POST[ 'contact-preference' ] ) ) {
+			update_post_meta( $post_id, 'contact-preference', wp_strip_all_tags( $_POST[ 'contact-preference' ] ) );
+		}
+		if ( isset ( $_POST[ 'status' ] ) ) {
+			update_post_meta( $post_id, 'status', 1 );
+		} else {
+			update_post_meta( $post_id, 'status', 0 ); 
 		}
 
 	}
@@ -386,7 +405,7 @@ add_action( 'add_meta_boxes', 'jyp_tickets_add_meta_box');
 *
 */
 
-//register option
+//register settings page under $parent_slug
 function test_submenu(){
 	$parent_slug	= 'edit.php?post_type=tickets';
 	$page_title		= 'Ticket Settings';
