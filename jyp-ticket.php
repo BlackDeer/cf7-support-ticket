@@ -496,4 +496,16 @@ function jyp_deregister_cf7_styles(){
 add_action( 'wp_print_styles', 'jyp_deregister_cf7_styles', 100 );
 
 
+/*
+* styles and scripts
+*
+*/
+
+function jyp_tickets_styles(){
+	wp_enqueue_style( 'jyp-ticket-style', plugins_url( '/jyp-ticket/jyp-ticket.css' ) );
+}
+add_action( 'wp_enqueue_scripts', 'jyp_tickets_styles' );
+
+
+
 

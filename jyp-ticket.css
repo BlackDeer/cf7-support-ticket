@@ -1,0 +1,7 @@
+td.ticket-name, td.ticket-building, td.ticket-unit, td.ticket-importance, td.ticket-comments, td.ticket-status{
+	font-size: .8em ;
+}
+
+tbody:nth-child(odd) {
+    background-color: #ddd;
+}
