@@ -1,7 +1,35 @@
-td.ticket-name, td.ticket-building, td.ticket-unit, td.ticket-importance, td.ticket-comments, td.ticket-status{
+td.ticket-name, td.ticket-building, td.ticket-unit, td.ticket-importance, td.ticket-status{
 	font-size: .8em ;
 }
 
-tbody:nth-child(odd) {
+tr.ticket:nth-child(odd) {
     background-color: #ddd;
+}
+
+th.ticket-title{
+	width: 32%;
+}
+
+th.ticket-name{
+	width: 20%;
+}
+
+th.ticket-building{
+	width: 14%;
+}
+
+th.ticket-unit{
+	width: 14%;
+}
+
+th.ticket-importance{
+	width: 15%;
+}
+
+th.ticket-status{
+	width: 15%;
+}
+
+table, th, td{
+	border: none !important;
 }

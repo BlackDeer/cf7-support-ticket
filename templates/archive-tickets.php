@@ -23,28 +23,27 @@ $tickets = new WP_Query( $args );
 				<?php the_archive_title( '<h1 class="page-title">', '</h1>' ); ?>
 			</header><!-- .page-header -->
 
-
 			<table id="archive-tickets">
 				<thead>
 					<tr>
-						<th colspan="3">Title</th>
-						<th>Name</th>
-						<th>Building</th>
-						<th>Unit</th>
-						<th>Importance</th>
-						<th>Comments</th>
-						<th>Status</th>
+						<th class="ticket-title">Title</th>
+						<th class="ticket-name">Name</th>
+						<th class="ticket-building">Building</th>
+						<th class="ticket-unit">Unit</th>
+						<th class="ticket-importance">Importance</th>
+						<th class="ticket-status">Status</th>
 					</tr>
 				</thead>
-
+				<tbody>
 					<?php while( $tickets->have_posts() ) : $tickets->the_post(); ?>
+					<tr class="ticket">
 
-				<tbody class="ticket">
-						<td class="ticket-title" colspan="3">
-								<?php the_title( sprintf( '<a href="%s" rel="bookmark">', esc_url( get_permalink() ) ), '</a>' ); ?>
+						<td class="ticket-title">
+							<?php the_title( sprintf( '<a href="%s" rel="bookmark">', esc_url( get_permalink() ) ), '</a>' ); ?>
 						</td>
 						<td class="ticket-name"> 
-							<?php $name = get_post_meta($post->ID, 'your-name', true ); echo $name ;?>
+							<?php echo get_avatar( get_custom_field( 'your-email'),  32 ) . ' ';
+							$name = get_post_meta($post->ID, 'your-name', true ); echo $name ;?>
 						</td>
 						<td class="ticket-building"> 
 							<?php $name = get_post_meta($post->ID, 'building', true ); echo $name ;?>
@@ -55,9 +54,6 @@ $tickets = new WP_Query( $args );
 						<td class="ticket-importance"> 
 							<?php $name = get_post_meta($post->ID, 'importance', true ); echo $name ;?>
 						</td>
-						<td class="ticket-comments"> 
-							<?php get_comments_number($post->ID); ?>
-						</td>
 						<td class="ticket-status">
 							<?php 
 								$name = get_post_meta($post->ID, 'status', true ); 
@@ -65,23 +61,9 @@ $tickets = new WP_Query( $args );
 							?>
 						</td>
 					</tr>
-	       	 	</tbody>	
-
-	        <?php endwhile; endif; wp_reset_postdata(); ?>
-
-			<tfoot>
-				<tr>
-					<th colspan="3">Title</th>
-					<th>Name</th>
-					<th>Building</th>
-					<th>Unit</th>
-					<th>Importance</th>
-					<th>Comments</th>
-					<th>Status</th>
-				</tr>
-			</tfoot>
-
-        </table>
+		       		<?php endwhile; endif; wp_reset_postdata(); ?>
+	       	 	</tbody>
+	        </table>
 
 		</main><!-- .site-main -->
 	</div><!-- .content-area -->

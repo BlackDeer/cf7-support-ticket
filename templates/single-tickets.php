@@ -16,17 +16,6 @@
 				<header class="entry-header">
 					<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 				</header><!-- .entry-header -->
-				<div class="custom-meta">
-					<?php
-						echo '<p>Name: ' . get_custom_field('your-name') . '</p>';
-						echo '<p>Email: ' . get_custom_field('your-email') . '</p>';
-						echo '<p>Department: ' . get_custom_field('department') . '</p>';
-						echo '<p>Importance: ' . get_custom_field('importance') . '</p>';
-						echo '<p>Building Number: ' . get_custom_field('building') . '</p>';
-						echo '<p>Unit Number: ' . get_custom_field('unit') . '</p>';
-
-					?>
-				</div>
 				<div class="entry-content">
 					<?php
 						the_content();
@@ -47,6 +36,21 @@
 						}
 
 					?>
+				<div class="custom-meta">
+					<p>
+					<?php
+						echo get_avatar( get_custom_field( 'your-email' ) ). '<br>';
+						echo get_the_date() . ' ' . get_the_time() . '<br>';
+						echo 'Name: ' . get_custom_field( 'your-name' ) . '<br>';
+						echo 'Email: ' . get_custom_field( 'your-email' ) . '<br>';
+						echo 'Department: ' . get_custom_field( 'department' ) . '<br>';
+						echo 'Importance: ' . get_custom_field( 'importance' ) . '<br>';
+						echo 'Building Number: ' . get_custom_field( 'building' ) . '<br>';
+						echo 'Unit Number: ' . get_custom_field( 'unit' );
+
+					?>
+					</p>
+				</div>
 				</div><!-- .entry-content -->
 
 				<footer class="entry-footer">

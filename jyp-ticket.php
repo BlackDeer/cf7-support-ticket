@@ -154,7 +154,7 @@ add_filter( 'wpcf7_posted_data', 'save_posted_data');
 function get_ticket_template( $template ) {
      global $post;
      function get_custom_field( $field_name ){
-     	echo get_post_meta( get_the_ID(), $field_name, true);
+     	return get_post_meta( get_the_ID(), $field_name, true);
      }
 
      $plugindir = plugin_dir_path(__FILE__);
